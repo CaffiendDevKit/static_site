@@ -13,10 +13,12 @@ class HTMLNode():
         self.props = props
 
     def to_html(self):
-        raise NotImplementedError
+        raise NotImplementedError("to_html method not implemented")
 
     def props_to_html(self):
         return_str=""
+        if not self.props:
+            return return_str
         for key in self.props.keys():
             return_str += f" {key}=\"{self.props[key]}\""
 
@@ -47,12 +49,35 @@ class HTMLNode():
 
         return "\n".join([tag_str, value_str, child_str, props_str])
     
-class LeafNode():
+class LeafNode(HTMLNode):
     def __init__(
             self,
             tag, # An HTMLNode without a tag will just render as raw text
             value, # An HTMLNode without a value will be assumed to have children
             props=None): # An HTMLNode without props simply won't have any attributes
-        self.tag = tag
-        self.value = value
-        self.props = props
+        super().__init__(tag=tag, value=value, props=props)
+
+    def to_html(self):
+        if not self.value:
+            raise ValueError("Invalid HTML: no value")
+        if not self.tag:
+            return self.value
+        htmlStr = f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+
+        return htmlStr
+    
+class ParentNode(HTMLNode):
+    def __inti__(self, tag, children, props=None):
+        super().__init__(tag=tag, value=None, children=children, props=props)
+
+    def to_html(self):
+        if not self.tag:
+            raise ValueError("Invalid HTML: no tag")
+        if not self.children:
+            raise ValueError("Invalid HTML: no child(ren)")
+        htmlStr = f"<{self.tag}{self.props_to_html()}>"
+        for child in self.children:
+            htmlStr += child.to_html()
+
+        htmlStr += f"</{self.tag}>"
+        return htmlStr
