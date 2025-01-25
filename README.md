@@ -1,0 +1,1 @@
+This is my public example of code created in the [boot.dev](https://www.boot.dev?bannerlord=caffienddevkit) "Build a Static Site Generator" in python course
